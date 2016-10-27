@@ -1,11 +1,12 @@
 package com.example.jean.popularmovies;
 
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -37,6 +38,9 @@ public class MainActivity extends AppCompatActivity {
 
     ArrayList<Movies> mMovies = new ArrayList<>();
     GridView gridView;
+    String filter = "popular";
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +66,15 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
+        if (id == R.id.mais_populares) {
+            filter = "popular";
+            onStart();
+            return true;
+        }
+
+        if (id == R.id.mais_votados) {
+            filter = "top_rated";
+            onStart();
             return true;
         }
 
@@ -73,8 +84,20 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        FetchMovieTask fetchMovie = new FetchMovieTask();
-        fetchMovie.execute();
+
+        ConnectivityManager cm =
+                (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
+        if(isConnected == true) {
+            FetchMovieTask fetchMovie = new FetchMovieTask();
+            fetchMovie.execute();
+        }else {
+            Toast.makeText(this,"Verifique sua conexão com a internet", Toast.LENGTH_LONG).show();
+        }
     }
 
     public class FetchMovieTask extends AsyncTask<Void, Void, ArrayList<Movies>> {
@@ -89,8 +112,8 @@ public class MainActivity extends AppCompatActivity {
 
             String moviesJsonStr = null;
 
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            String filter = prefs.getString("key", "top_rated");
+            //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            //String filter = prefs.getString("key", "top_rated");
 
             try {
                 final String MOVIE_BASE_URL = "http://api.themoviedb.org/3/movie/";
@@ -181,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
                 moviesDb.setPoster_path(movies.getString(TMDB_POSTER_PATH));
                 moviesDb.setAdult(movies.getBoolean(TMDB_ADULT));
                 moviesDb.setOverview(movies.getString(TMDB_OVERVIEW));
-                moviesDb.setRelease_date(convertReleaseDate((String) movies.get(TMDB_RELEASE_DATE)));
+                moviesDb.setRelease_date(movies.getString(TMDB_RELEASE_DATE));
                 moviesDb.setId(movies.getLong(TMDB_ID));
                 moviesDb.setOriginal_title(movies.getString(TMDB_ORIGINAL_TITLE));
                 moviesDb.setOriginal_language(movies.getString(TMDB_ORIGINAL_LANGUAGE));
@@ -228,15 +251,9 @@ public class MainActivity extends AppCompatActivity {
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Movies mv = movies.get(position);
                     Intent intent = new Intent(MainActivity.this, DetailActivity.class)
-                            .putExtra("title", mv.getTitle())
-                            .putExtra("date", mv.getRelease_date())
-                            .putExtra("movie_poster", mv.getPoster_path())
-                            .putExtra("vote_average", mv.getVote_average())
-                            .putExtra("overview", mv.getOverview());
+                            .putExtra("movie", mv);
                     startActivity(intent);
 
-
-                    Toast.makeText(MainActivity.this, movies.get(position).getTitle(), Toast.LENGTH_SHORT).show();
                 }
 
             });

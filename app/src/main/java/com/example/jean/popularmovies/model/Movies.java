@@ -1,19 +1,59 @@
 package com.example.jean.popularmovies.model;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
  * Created by Jean on 18/10/2016.
  */
 
-public class Movies {
+public class Movies implements Parcelable {
 
     public long id;
     public String poster_path;
     public boolean adult;
     public String overview;
-    public Date release_date;
+    public String release_date;
+    public String original_title;
+    public String original_language;
+
+
+
+    public String title;
+    public String backdrop_path;
+    public double popularity;
+    public long vote_count;
+    public double vote_average;
+
+    public Movies() {
+    }
+
+    protected Movies(Parcel in) {
+        id = in.readLong();
+        poster_path = in.readString();
+        adult = in.readByte() != 0;
+        overview = in.readString();
+        release_date = in.readString();
+        original_title = in.readString();
+        original_language = in.readString();
+        title = in.readString();
+        backdrop_path = in.readString();
+        popularity = in.readDouble();
+        vote_count = in.readLong();
+        vote_average = in.readDouble();
+    }
+
+    public static final Creator<Movies> CREATOR = new Creator<Movies>() {
+        @Override
+        public Movies createFromParcel(Parcel in) {
+            return new Movies(in);
+        }
+
+        @Override
+        public Movies[] newArray(int size) {
+            return new Movies[size];
+        }
+    };
 
     public long getId() {
         return id;
@@ -24,7 +64,7 @@ public class Movies {
     }
 
     public String getPoster_path() {
-        return "http://image.tmdb.org/t/p/w185"+poster_path;
+        return "http://image.tmdb.org/t/p/w185" + poster_path;
     }
 
     public void setPoster_path(String poster_path) {
@@ -47,18 +87,12 @@ public class Movies {
         this.overview = overview;
     }
 
-    public String getRelease_date() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-
-        return dateFormat.format(release_date);
-    }
-
-    public void setRelease_date(Date release_date) {
+    public void setRelease_date(String release_date) {
         this.release_date = release_date;
     }
 
-    public String getOriginal_title() {
-        return original_title;
+    public String getRelease_date() {
+        return release_date;
     }
 
     public void setOriginal_title(String original_title) {
@@ -113,11 +147,25 @@ public class Movies {
         this.vote_average = vote_average;
     }
 
-    public String original_title;
-    public String original_language;
-    public String title;
-    public String backdrop_path;
-    public double popularity;
-    public long vote_count;
-    public double vote_average;
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
+        dest.writeString(poster_path);
+        dest.writeByte((byte) (adult ? 1 : 0));
+        dest.writeString(overview);
+        dest.writeString(release_date);
+        dest.writeString(original_title);
+        dest.writeString(original_language);
+        dest.writeString(title);
+        dest.writeString(backdrop_path);
+        dest.writeDouble(popularity);
+        dest.writeLong(vote_count);
+        dest.writeDouble(vote_average);
+    }
 }

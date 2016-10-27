@@ -47,18 +47,37 @@ public class MoviesAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         Movies moviesView = movies.get(position);
+        View view;
 
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View layout = inflater.inflate(R.layout.movies_list_layout, null);
+        ViewHolder holder;
 
-        ImageView iv = (ImageView) layout.findViewById(R.id.iv_movies);
+
+        if (convertView == null) {
+
+            view  = LayoutInflater.from(context).inflate(R.layout.movies_list_layout, parent, false);
+            holder = new ViewHolder(view);
+            view.setTag(holder);
+
+        } else {
+            view = convertView;
+            holder = (ViewHolder) view.getTag();
+        }
+
         Picasso.with(context)
                 .load(moviesView.getPoster_path())
                 .placeholder(R.mipmap.ic_launcher)
                 .error(R.mipmap.ic_launcher)
-                .fit()
-                .into(iv);
 
-        return layout;
+                .into(holder.iv);
+        return view;
     }
 }
+
+    class ViewHolder {
+
+        final ImageView iv;
+
+        public ViewHolder(View view){
+            iv = (ImageView) view.findViewById(R.id.iv_movies);
+        }
+    }

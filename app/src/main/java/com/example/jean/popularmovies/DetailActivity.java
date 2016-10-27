@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.jean.popularmovies.model.Movies;
 import com.squareup.picasso.Picasso;
 
 public class DetailActivity extends AppCompatActivity {
@@ -23,22 +24,27 @@ public class DetailActivity extends AppCompatActivity {
 
 
         Intent intent = this.getIntent();
-        if (intent != null && intent.hasExtra("title")) {
+        Movies mv = intent.getParcelableExtra("movie");
+
+
+        getSupportActionBar().setTitle(mv.getTitle()); // set the top title
+
 
             Picasso.with(this)
-                    .load(intent.getStringExtra("movie_poster"))
+                    .load(mv.getPoster_path())
                     .fit()
                     .placeholder(R.mipmap.ic_launcher)
                     .error(R.mipmap.ic_launcher)
                     .into(ivPoster);
-            tvTitle.setText(intent.getStringExtra("title"));
-            tvReleaseDate.setText(intent.getStringExtra("date"));
-            tvVoteAverage.setText(intent.getStringExtra("vote_average"));
-            tvOverview.setText(intent.getStringExtra("overview"));
+
+            tvTitle.setText(mv.getTitle());
+            tvReleaseDate.setText(mv.getRelease_date());
+            tvVoteAverage.setText(mv.getVote_average());
+            tvOverview.setText(mv.getOverview());
 
         }
 
     }
 
 
-}
+
